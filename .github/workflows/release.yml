@@ -1,0 +1,107 @@
+name: Build & Release
+
+# 触发（对齐 local-sharing 模式）：
+# - push 到 main：构建并上传 Actions Artifacts（日常测试）
+# - push v* tag：构建并发布到 GitHub Releases（正式发布）
+# - 手动：Actions 页 Run workflow
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    name: Android (Debug APK)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Accept SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+
+      # APK 文件名由 build.gradle.kts 按 versionName 生成：LeleMusic-vYY.MM.DD.apk
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeleMusic-android-apk
+          path: app/build/outputs/apk/debug/LeleMusic-v*.apk
+          if-no-files-found: error
+
+      - name: Release (tag only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/debug/LeleMusic-v*.apk
+
+  ios:
+    name: iOS (unsigned IPA)
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: |
+          xcodegen generate
+          echo "--- verify project ---"
+          pwd && ls -la
+          test -d LeleMusic.xcodeproj && echo "xcodeproj OK" || { echo "xcodeproj MISSING"; find . -maxdepth 3 -name "*.xcodeproj"; exit 1; }
+          xcodebuild -project LeleMusic.xcodeproj -list
+
+      - name: Build (unsigned, generic iOS device)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project LeleMusic.xcodeproj \
+            -scheme LeleMusic \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tee build.log | tail -40
+
+      - name: Package unsigned IPA
+        working-directory: ios
+        run: |
+          APP=$(find build/Build/Products -type d -name "LeleMusic.app" | head -1)
+          echo "APP=$APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry LeleMusic-v${GITHUB_REF_NAME#v}-unsigned.ipa Payload
+          ls -lh LeleMusic-v*-unsigned.ipa
+          rm -rf Payload
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeleMusic-unsigned-ipa
+          path: ios/LeleMusic-v*-unsigned.ipa
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Release (tag only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ios/LeleMusic-v*-unsigned.ipa

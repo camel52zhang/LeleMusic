@@ -97,7 +97,7 @@ struct KugouService {
     // MARK: 搜索（song_search_v2，匿名可用）
 
     func search(keyword: String, limit: Int = 30) async throws -> [Song] {
-        var comps = URLComponents(string: endpoint(Self.songSearchUrl))!
+        var comps = URLComponents(string: Self.songSearchUrl)!
         comps.queryItems = [
             URLQueryItem(name: "keyword", value: keyword),
             URLQueryItem(name: "page", value: "1"),
@@ -137,7 +137,7 @@ struct KugouService {
         guard !hash.isEmpty else {
             throw AppException(code: AppError.parse, detail: "kugou hash is blank, uid=\(song.uid)")
         }
-        var comps = URLComponents(string: endpoint(Self.playInfoUrl))!
+        var comps = URLComponents(string: endpoint(Self.playInfoStrategyId, Self.playInfoUrl))!
         comps.queryItems = [
             URLQueryItem(name: "cmd", value: "playInfo"),
             URLQueryItem(name: "hash", value: hash),

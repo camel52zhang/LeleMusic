@@ -72,7 +72,7 @@ final class LyricLoader: ObservableObject {
     private func fetch(song: Song) async -> LyricResult {
         switch song.platform {
         case .netease:
-            return try? await netease.lyric(song: song) ?? .noLyric
+            return (try? await netease.lyric(song: song)) ?? .noLyric
         case .kugou:
             return (try? await kugou.lyric(song: song)) ?? .noLyric
         case .local:

@@ -83,7 +83,7 @@ struct KugouService {
             artist: artist,
             album: "", // 酷狗榜单不返回专辑名（接口限制）
             durationMs: durationSec * 1000,
-            coverUrl: buildChartCoverUrl(item.albumSizableCover),
+            coverUrl: Self.buildChartCoverUrl(item.albumSizableCover),
             rank: rank
         )
     }

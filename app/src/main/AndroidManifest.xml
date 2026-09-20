@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- 前台服务（Media3 MediaSessionService 自动起前台服务，退后台/关屏持续播放） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Android 9+（targetSdk 34 必填）：前台服务类型细分 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- Android 13+ 通知运行时权限：不给则通知栏不显示，App 需在运行期申请 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- ExoPlayer.setWakeMode(C.WAKE_MODE_NETWORK)：关屏后保持 CPU / Wi-Fi 唤醒，否则流会断 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 桌面歌词（TYPE_APPLICATION_OVERLAY 悬浮窗）：用户须在系统设置授予「显示在其他应用上层」 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:name=".LeLeMusicApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:supportsRtl="false"
+        android:theme="@style/Theme.LeLeMusic"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="fullUser"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.LeLeMusic">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          播放服务（T03 已创建 .player.PlaybackService，注释已解除）。
+
+          · exported="false"：只接受本 App 的 MediaController，不对外暴露；
+            但 MediaSessionService 仍会响应系统媒体控件（通知栏 / 锁屏 / 耳机线控），
+            这是通过 MediaSession 而非组件导出实现的。
+          · foregroundServiceType="mediaPlayback"：Android 14（targetSdk 34）强制要求，
+            否则 startForeground 会抛 MissingForegroundServiceTypeException。
+          · intent-filter 的 action 是 Media3 约定的固定值，MediaController 的
+            SessionToken 靠它定位到本服务。
+          · 另有 androidx.media3.session.MediaLibraryService 的 action（不需要，
+            我们没有 MediaBrowser 浏览树）。
+
+          注：BecomingNoisyReceiver 采用「onCreate 动态注册 / onDestroy 注销」，
+          Android 8+ 静态广播受限且会无谓拉起进程，因此这里**没有** <receiver> 标签。
+        -->
+        <service
+            android:name=".player.PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

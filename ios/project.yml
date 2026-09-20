@@ -1,0 +1,38 @@
+name: LeleMusic
+options:
+  bundleIdPrefix: com.lelemusic
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "26.09.20"
+    CURRENT_PROJECT_VERSION: "260920"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1"
+
+targets:
+  LeleMusic:
+    type: application
+    platform: iOS
+    sources:
+      - LeleMusic
+    info:
+      path: LeleMusic/Info.plist
+      properties:
+        CFBundleDisplayName: 乐乐音乐
+        CFBundleShortVersionString: "26.09.20"
+        CFBundleVersion: "260920"
+        UILaunchScreen: {}
+        # MVP 仅竖屏（对齐 Android 手机端）
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        # 后台播音乐（锁屏继续播）
+        UIBackgroundModes:
+          - audio
+        ITSAppUsesNonExemptEncryption: false
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true

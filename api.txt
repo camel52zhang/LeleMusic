@@ -1,0 +1,36 @@
+https://raw.githubusercontent.com/maotoumao/MusicFreePlugins/refs/heads/master/dist/_plugins/plugins.json
+
+https://raw.githubusercontent.com/Huibq/keep-alive/refs/heads/master/Music_Free/myPlugins.json
+
+https://fastly.jsdelivr.net/gh/Huibq/keep-alive/render_api.js
+
+https://raw.githubusercontent.com/pdone/lx-music-source/main/sixyin/latest.js
+
+https://raw.githubusercontent.com/pdone/lx-music-source/main/huibq/latest.js
+
+https://raw.githubusercontent.com/pdone/lx-music-source/main/flower/latest.js
+
+https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
+
+https://raw.githubusercontent.com/pdone/lx-music-source/main/ikun/latest.js
+
+https://raw.githubusercontent.com/pdone/lx-music-source/main/grass/latest.js
+
+SixYin v1.2.1	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/sixyin-v1.2.1.js
+SixYin v1.2.0	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/sixyin-v1.2.0.js
+IKun 源	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/ikun-source-HK.js
+Nya 源	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/nya.js
+YC 源	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/yc.js
+YH 源	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/yh.js
+YYXZQ 源	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/yyxzq.js
+LX Music 源	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/lx-music.js
+JH 源	https://cdn.jsdelivr.net/gh/liuyunss/LX-source@master/jh.js
+
+
+SixYin	https://raw.githubusercontent.com/pdone/lx-music-source/main/sixyin/latest.js
+Huibq	https://raw.githubusercontent.com/pdone/lx-music-source/main/huibq/latest.js
+Flower	https://raw.githubusercontent.com/pdone/lx-music-source/main/flower/latest.js
+LX	https://raw.githubusercontent.com/pdone/lx-music-source/main/lx/latest.js
+IKun	https://raw.githubusercontent.com/pdone/lx-music-source/main/ikun/latest.js
+Grass	https://raw.githubusercontent.com/pdone/lx-music-source/main/grass/latest.js
+Juhe	https://raw.githubusercontent.com/pdone/lx-music-source/main/juhe/latest.js

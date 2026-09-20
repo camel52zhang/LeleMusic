@@ -1,0 +1,279 @@
+classDiagram
+    direction LR
+
+    %% ================= 领域模型 =================
+    class Platform {
+        <<enumeration>>
+        QQ
+        NETEASE
+        KUGOU
+        +String id
+        +String displayName
+        +Long seedColor
+    }
+
+    class PlayableStatus {
+        <<enumeration>>
+        UNKNOWN
+        AVAILABLE
+        TRIAL_ONLY
+        UNAVAILABLE
+    }
+
+    class PlaybackMode {
+        <<enumeration>>
+        LIST_LOOP
+        SINGLE_LOOP
+        SHUFFLE
+        +Int repeatMode
+        +Boolean shuffleOn
+    }
+
+    class ChartDef {
+        +Platform platform
+        +String chartId
+        +String title
+        +Boolean enabled
+        +Boolean isDefault
+    }
+
+    class Song {
+        +String uid
+        +Platform platform
+        +String platformSongId
+        +Map~String,String~ extras
+        +String title
+        +String artist
+        +String album
+        +Long durationMs
+        +String coverUrl
+        +Int rank
+        +PlayableStatus playable
+        +extra(String) String
+    }
+
+    class ResolvedTrack {
+        +String url
+        +Boolean isFull
+        +Map~String,String~ headers
+        +String strategyId
+        +String quality
+        +Long actualDurationMs
+        +String coverUrl
+    }
+
+    class ResolveFailure {
+        +String strategyId
+        +String errorCode
+        +String message
+        +Long elapsedMs
+    }
+
+    class RankPage {
+        +List~Song~ songs
+        +String updatedAt
+    }
+
+    %% ================= 数据源抽象层 =================
+    class RankSource {
+        <<interface>>
+        +Platform platform
+        +List~ChartDef~ charts()
+        +RankPage fetchChart(String chartId, Int limit)
+    }
+
+    class PlayUrlResolver {
+        <<interface>>
+        +String strategyId
+        +Platform platform
+        +Int priority
+        +Boolean defaultEnabled
+        +ResolvedTrack resolve(Song song)
+    }
+
+    class ResolverRegistry {
+        -List~PlayUrlResolver~ all
+        +forPlatform(Platform) List~PlayUrlResolver~
+        +byId(String) PlayUrlResolver
+        +toggle(String, Boolean)
+    }
+
+    %% ================= 平台实现 =================
+    class QqRankSource
+    class NeteaseRankSource
+    class KugouRankSource
+    class QqFullTrackResolver
+    class QqTrialResolver
+    class NeteaseUrlResolver
+    class KugouUrlResolver
+
+    class UrlDurationProbe {
+        +probeDurationMs(String url, Map headers) Long
+        +isFull(Long realMs, Long expectMs) Boolean
+    }
+
+    %% ================= 远程接口 =================
+    class QqApi {
+        <<interface>>
+        +musicu(String url, String data) QqMusicuResp
+        +playSingleSong(String url, String songmid) QqSingleSongResp
+    }
+    class NeteaseApi {
+        <<interface>>
+        +playlistDetail(String url, Long id) NeteasePlaylistResp
+        +songUrl(String url, String ids, Int br) NeteaseUrlResp
+    }
+    class KugouApi {
+        <<interface>>
+        +rankInfo(String url, Int rankid, Int page) KugouRankResp
+        +playInfo(String url, String hash) KugouPlayInfoResp
+    }
+
+    %% ================= Repository / UseCase =================
+    class ChartRepository {
+        +List~Platform~ platforms()
+        +List~ChartDef~ chartsOf(Platform)
+        +Flow~ChartUiState~ load(Platform, String chartId, Boolean force)
+        +registerSongs(List~Song~)
+    }
+    class PlayUrlResolveUseCase {
+        +ResolvedTrack resolve(Song song)
+        +List~ResolveFailure~ lastFailures(String uid)
+    }
+    class SourceHealthRepository {
+        +Map~Platform,Boolean~ snapshot()
+        +probeAll()
+    }
+
+    %% ================= 播放层 =================
+    class PlaybackService
+    class TrackStore {
+        +putAll(List~Song~)
+        +get(String uid) Song
+    }
+    class ResolvedTrackStore {
+        +putTrack(String uid, ResolvedTrack)
+        +putFailure(String uid, ResolveFailure)
+        +trackOf(String uid) ResolvedTrack
+        +failureOf(String uid) ResolveFailure
+    }
+    class ResolveDataSpecResolver {
+        -PlayUrlResolveUseCase useCase
+        -TrackStore trackStore
+        +resolveDataSpec(DataSpec) DataSpec
+    }
+    class ResolvingMediaSourceFactory
+    class MediaItemFactory
+    class PlaybackController {
+        +StateFlow~PlaybackUiState~ uiState
+        +playSongs(List~Song~, Int startIndex)
+        +play() pause() next() previous()
+        +seekTo(Long ms)
+        +cyclePlaybackMode()
+    }
+    class BecomingNoisyReceiver
+
+    %% ================= UI 层 =================
+    class MainActivity
+    class RootNav
+    class ChartViewModel
+    class PlayerViewModel
+    class LabViewModel
+
+    %% ================= 基础设施 =================
+    class AppGraph {
+        +init(Application app)
+        +okHttp OkHttpClient
+        +qqApi QqApi
+        +neteaseApi NeteaseApi
+        +kugouApi KugouApi
+        +settings AppSettings
+        +trackStore TrackStore
+        +resolvedStore ResolvedTrackStore
+        +resolvers List~PlayUrlResolver~
+        +rankSources List~RankSource~
+        +chartRepository ChartRepository
+        +resolveUseCase PlayUrlResolveUseCase
+    }
+    class HttpStack {
+        +okHttpClient() OkHttpClient
+        +retrofit(OkHttpClient) Retrofit
+    }
+    class AppSettings {
+        +qqFullEnabled Boolean
+        +qqProbeEnabled Boolean
+        +playbackMode PlaybackMode
+        +resolverOverride Map~String,Boolean~
+    }
+    class AppException {
+        +AppError error
+        +String detail
+    }
+
+    %% ================= 关系 =================
+    Platform <-- Song : 归属
+    PlayableStatus <-- Song : 状态
+    Platform <-- ChartDef : 归属
+    Song "0..*" <-- RankPage : 包含
+    Platform <-- RankSource : 归属
+    Platform <-- PlayUrlResolver : 归属
+
+    RankSource <|.. QqRankSource
+    RankSource <|.. NeteaseRankSource
+    RankSource <|.. KugouRankSource
+
+    PlayUrlResolver <|.. QqFullTrackResolver
+    PlayUrlResolver <|.. QqTrialResolver
+    PlayUrlResolver <|.. NeteaseUrlResolver
+    PlayUrlResolver <|.. KugouUrlResolver
+
+    PlayUrlResolver "1..*" o-- ResolverRegistry : 注册
+    ResolvedTrack <.. PlayUrlResolver : 产出
+    ResolveFailure <.. PlayUrlResolver : 失败产出
+
+    UrlDurationProbe <.. QqTrialResolver : 真实时长判定
+    UrlDurationProbe <.. KugouUrlResolver : timeLength 校验
+
+    QqApi <.. QqRankSource
+    QqApi <.. QqFullTrackResolver
+    QqApi <.. QqTrialResolver
+    NeteaseApi <.. NeteaseRankSource
+    NeteaseApi <.. NeteaseUrlResolver
+    KugouApi <.. KugouRankSource
+    KugouApi <.. KugouUrlResolver
+
+    RankSource "1..*" o-- ChartRepository : 编排
+    PlayUrlResolver "1..*" o-- PlayUrlResolveUseCase : 责任链
+    ResolverRegistry <.. PlayUrlResolveUseCase
+
+    TrackStore <.. ChartRepository : 写入
+    TrackStore <.. PlaybackService : 读取
+    ResolvedTrackStore <.. ResolveDataSpecResolver : 写入
+    ResolvedTrackStore <.. PlaybackController : 读取
+    PlayUrlResolveUseCase <.. ResolveDataSpecResolver : 调用
+    ResolveDataSpecResolver <.. ResolvingMediaSourceFactory : 装配
+    ResolvingMediaSourceFactory <.. PlaybackService : 装配
+    MediaItemFactory <.. PlaybackController
+    BecomingNoisyReceiver <.. PlaybackService : 注册/注销
+
+    AppGraph ..> HttpStack : 构建
+    AppGraph ..> QqApi : 单例
+    AppGraph ..> NeteaseApi : 单例
+    AppGraph ..> KugouApi : 单例
+    AppGraph ..> AppSettings : 单例
+    AppGraph ..> TrackStore : 单例
+    AppGraph ..> ResolvedTrackStore : 单例
+    AppGraph ..> ChartRepository : 单例
+    AppGraph ..> PlayUrlResolveUseCase : 单例
+    AppGraph ..> ResolverRegistry : 单例
+
+    ChartViewModel ..> ChartRepository
+    PlayerViewModel ..> PlaybackController
+    LabViewModel ..> PlayUrlResolveUseCase
+    LabViewModel ..> SourceHealthRepository
+    MainActivity --> RootNav
+    RootNav --> ChartViewModel
+    RootNav --> PlayerViewModel
+    RootNav --> LabViewModel
+    AppException <.. ChartRepository : 抛出
+    AppException <.. PlayUrlResolveUseCase : 抛出

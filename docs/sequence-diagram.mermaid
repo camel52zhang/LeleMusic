@@ -1,0 +1,120 @@
+sequenceDiagram
+    autonumber
+    actor U as 用户
+    participant CS as ChartScreen
+    participant VM as ChartViewModel
+    participant CR as ChartRepository
+    participant RS as QqRankSource / Netease / Kugou
+    participant API as PlatformApi-Retrofit
+    participant TS as TrackStore
+    participant PC as PlaybackController
+    participant SVC as PlaybackService
+    participant RDR as ResolveDataSpecResolver
+    participant UC as PlayUrlResolveUseCase
+    participant R1 as QqFullTrackResolver
+    participant R2 as QqTrialResolver
+    participant NE as NeteaseUrlResolver
+    participant KG as KugouUrlResolver
+    participant PRB as UrlDurationProbe
+    participant EX as ExoPlayer
+    participant RTS as ResolvedTrackStore
+
+    Note over CS,CR: 阶段一 加载榜单
+    U->>CS: 打开 App / 切换平台 Tab / 切换榜单 Tab
+    CS->>VM: onPlatformSelected(QQ)
+    VM->>CR: load(QQ, chartId=26, force=false)
+    CR->>RS: fetchChart(26, limit=50)
+    RS->>API: GET u.y.qq.com/cgi-bin/musicu.fcg?data=GetDetail
+    API-->>RS: QqMusicuResp
+    RS->>RS: QqMapper 转 List of Song，取 mid / media_mid / songId / interval
+    RS-->>CR: RankPage
+    CR->>TS: putAll(songs)
+    CR-->>VM: ChartUiState.Success(songs)
+    VM-->>CS: StateFlow 更新，LazyColumn 渲染
+
+    Note over U,RTS: 阶段二 点击播放
+    U->>CS: 点击第 3 首
+    CS->>PC: playSongs(songs, startIndex=2)
+    PC->>PC: MediaItemFactory 生成 MediaItem，uri = lelemusic://resolve/uid
+    PC->>SVC: setMediaItems(items, 2) + prepare + play
+    SVC->>EX: prepare(ProgressiveMediaSource)
+    EX->>EX: 进入 STATE_BUFFERING，UI 显示解析中
+    EX->>RDR: open(DataSpec lelemusic://resolve/uid)
+
+    Note over RDR,R2: 阶段三 懒解析，每次读流实时进行，直链不落盘
+    RDR->>TS: get(uid) 取 Song
+    RDR->>UC: resolve(song) 在加载线程 runBlocking 并切 IO
+    UC->>UC: registry.forPlatform(QQ).filter enabled .sortedBy priority
+
+    alt 平台 = QQ
+        UC->>R1: resolve(song) 策略 qq.full, priority=10
+        R1->>API: GET musicu.fcg?data=CgiGetVkey，Header 带 Referer 与移动端 UA
+        API-->>R1: midurlinfo
+        alt purl 非空，全曲打通
+            R1-->>UC: ResolvedTrack isFull=true, url=https://sip/purl
+        else purl 为空 / retcode=104009 / 超时 5s
+            R1-->>UC: 失败 AppException 104009 invalidq
+            UC->>R2: resolve(song) 策略 qq.trial, priority=20，自动降级
+            R2->>API: GET c.y.qq.com/v8/fcg-bin/fcg_play_single_song.fcg?songmid=mid
+            API-->>R2: url 映射 songId 到 ws.stream.qqmusic.qq.com/C100xxx.m4a?fromtag=38
+            R2->>R2: 补 https 前缀
+            opt settings.qqProbeEnabled == true
+                R2->>PRB: probeDurationMs(url, Referer)
+                PRB->>PRB: MediaMetadataRetriever.setDataSource 读 METADATA_KEY_DURATION
+                PRB-->>R2: realMs
+            end
+            R2->>R2: isFull = realMs >= 0.9 * interval
+            R2-->>UC: ResolvedTrack isFull, actualDurationMs
+        end
+    else 平台 = 网易云
+        UC->>NE: resolve(song) 策略 netease.320
+        NE->>API: GET /api/song/enhance/player/url?ids=id&br=320000
+        alt code=200 且 url 非空
+            NE->>NE: http 改 https
+            NE-->>UC: ResolvedTrack isFull=true
+        else code = -110
+            NE->>API: 重试 br=128000
+            alt 成功
+                NE-->>UC: ResolvedTrack isFull=true, quality=128k
+            else 仍失败
+                NE-->>UC: 失败 AppException -110
+            end
+        end
+    else 平台 = 酷狗
+        UC->>KG: resolve(song) 策略 kugou.playinfo
+        KG->>API: GET m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=hash
+        alt url 非空
+            KG->>KG: 校验 timeLength >= 0.9 * 榜单时长，判定 isFull
+            KG-->>UC: ResolvedTrack isFull, coverUrl=album_img
+        else url 为空 且 backup_url 非空
+            KG-->>UC: ResolvedTrack url=backup_url 第一项
+        else
+            KG-->>UC: 失败 AppException
+        end
+    end
+
+    alt 任一策略成功
+        UC-->>RDR: ResolvedTrack
+        RDR->>RTS: putTrack(uid, track)
+        RDR-->>EX: DataSpec uri=真实URL, httpRequestHeaders=headers
+        EX->>EX: 开始缓冲，STATE_READY，出声
+        EX-->>PC: onPlaybackStateChanged(READY)
+        PC->>RTS: trackOf(currentUid)
+        RTS-->>PC: ResolvedTrack
+        PC-->>CS: uiState.isTrial = !track.isFull
+        CS->>CS: 试听时歌名下方显示橙色胶囊 试听片段
+    else 全部策略失败，三级降级到底
+        UC-->>RDR: 失败 AppException PlaySourceUnavailable
+        RDR->>RTS: putFailure(uid, ResolveFailure)
+        RDR-->>EX: throw IOException
+        EX-->>PC: onPlayerError ERROR_CODE_IO_UNSPECIFIED
+        PC->>RTS: failureOf(uid)
+        PC-->>CS: uiState.error = 该歌曲当前无法播放
+        CS->>CS: 错误卡片 加 重试 加 跳转到 QQ音乐收听
+    end
+
+    Note over U,SVC: 阶段四 后台播放
+    U->>U: 按 Home 键
+    SVC->>SVC: MediaSessionService 自动转前台服务并发媒体通知
+    U->>U: 通知栏点暂停 / 下一首
+    SVC->>EX: 通过 MediaSession 控制，无需 App 前台

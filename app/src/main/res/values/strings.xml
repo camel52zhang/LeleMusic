@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">LeLeMusic</string>
+
+    <!-- 平台名 -->
+    <string name="platform_netease">网易云音乐</string>
+    <string name="platform_kugou">酷狗音乐</string>
+
+    <!-- 榜单名 -->
+    <string name="chart_hot">热歌榜</string>
+    <string name="chart_new">新歌榜</string>
+    <string name="chart_soar">飙升榜</string>
+    <string name="chart_top500">TOP500</string>
+
+    <!-- 通用标签 -->
+    <string name="label_trial">试听片段</string>
+    <string name="label_trial_hint">当前只能播放试听片段</string>
+    <string name="label_unknown_album">未知专辑</string>
+    <string name="label_unknown_artist">未知歌手</string>
+    <string name="label_unknown_duration">--:--</string>
+    <string name="label_resolving">解析中…</string>
+    <string name="label_loading">加载中…</string>
+    <string name="label_empty">暂无数据</string>
+    <string name="label_source_maintaining">数据源维护中</string>
+    <string name="label_rank">NO.%1$d</string>
+    <string name="label_artist_album">%1$s · %2$s</string>
+    <string name="label_updated_at">更新于 %1$s</string>
+    <string name="label_updated_unknown">更新时间未知</string>
+    <string name="label_source_from">来源: %1$s</string>
+    <string name="label_song_count">共 %1$d 首</string>
+    <string name="label_connecting">连接中…</string>
+    <string name="label_no_playing">暂无播放</string>
+    <string name="label_empty_chart">这个榜单暂时没有歌曲</string>
+    <string name="label_empty_chart_hint">换个榜单，或点右上角刷新试试</string>
+    <string name="label_error_title">出了点问题</string>
+    <string name="label_platform_down">维护中</string>
+
+    <!-- 播放模式 -->
+    <string name="label_mode_list_loop">列表循环</string>
+    <string name="label_mode_single_loop">单曲循环</string>
+    <string name="label_mode_shuffle">随机播放</string>
+    <string name="msg_auto_skip_restricted">已跳过《%1$s》：无法获取音源，可能为付费/版权限制</string>
+
+    <!-- 播放倍速（快进 / 慢放） -->
+    <string name="action_slower">慢放</string>
+    <string name="action_faster">快进</string>
+    <string name="label_speed_normal">常速</string>
+    <string name="label_speed_value">%1$s倍</string>
+    <string name="cd_speed_down">降低播放速度（慢放）</string>
+    <string name="cd_speed_up">提高播放速度（快进）</string>
+    <string name="cd_speed_reset">恢复常速播放</string>
+
+    <!-- 错误文案 -->
+    <string name="error_no_source">该歌曲当前无法播放</string>
+    <string name="error_network">网络异常，请检查网络连接</string>
+    <string name="error_timeout">请求超时，请稍后重试</string>
+    <string name="error_parse">数据解析失败</string>
+    <string name="error_empty">暂无数据</string>
+    <string name="error_unknown">未知错误</string>
+    <string name="error_open_link_failed">无法打开外部链接</string>
+
+    <!-- 操作 -->
+    <string name="action_retry">重试</string>
+    <string name="action_refresh">刷新</string>
+    <string name="action_open_in_platform">跳转到 %1$s 收听</string>
+    <string name="action_settings">设置</string>
+    <string name="action_play">播放</string>
+    <string name="action_pause">暂停</string>
+
+    <!-- 歌词（播放页歌词面板 + 本地歌词导入） -->
+    <string name="label_lyrics">歌词</string>
+    <string name="label_cover">封面</string>
+    <string name="label_local_lyric_badge">本地</string>
+    <string name="lyric_loading">歌词加载中…</string>
+    <string name="lyric_empty">暂无歌词</string>
+    <string name="lyric_match_hint">点这里，联网帮你找歌词</string>
+    <string name="lyric_match_failed">联网翻遍了云端词库，也没能找到这首的歌词\n校正歌名后再试一次，或用「本地歌词」手动导入</string>
+    <string name="lyric_fetch_failed">歌词获取失败，可尝试导入本地歌词</string>
+    <string name="lyric_platform_unsupported">该平台暂不支持歌词</string>
+    <string name="lyric_plain_hint">纯文本歌词 · 无时间轴</string>
+    <string name="action_local_lyric">本地歌词</string>
+    <string name="action_clear_local_lyric">清除本地歌词</string>
+    <string name="lyric_imported">已加载本地歌词</string>
+    <string name="lyric_read_failed">读取本地歌词失败</string>
+    <string name="lyric_bad_format">不支持的文件（仅支持 .lrc / .srt）</string>
+    <string name="lyric_empty_file">歌词文件内容为空</string>
+    <string name="lyric_no_song">当前没有正在播放的歌曲</string>
+    <string name="cd_show_lyrics">查看歌词</string>
+    <string name="cd_back_to_cover">返回封面</string>
+
+    <!-- 音源自检台（Lab，T05）—— 本项目的验收工具 -->
+    <string name="lab_title">音源自检台</string>
+    <string name="lab_run">开始自检</string>
+    <string name="lab_cancel">取消自检</string>
+    <string name="lab_running">自检中… %1$s</string>
+    <string name="lab_done">已完成 %1$s 行</string>
+    <string name="lab_copy_log">复制日志</string>
+    <string name="lab_log_copied">日志已复制到剪贴板</string>
+    <string name="lab_copy_failed">复制失败</string>
+    <string name="lab_never_run">还没跑过自检，点「开始自检」</string>
+    <string name="lab_conclusion">结论</string>
+    <string name="lab_crashed">自检异常中断，请重试</string>
+    <string name="lab_cancelled">自检已取消</string>
+    <string name="lab_empty">点「开始自检」跑一次</string>
+
+    <string name="lab_no_sample">拿不到样本歌曲（榜单接口不可用或返回空）</string>
+    <string name="lab_section_switches">运行期开关（改完立即生效，无需重启）</string>
+
+    <string name="lab_section_display">显示</string>
+    <string name="lab_fill_wide_title">大屏内容铺满到边</string>
+    <string name="lab_fill_wide_subtitle">默认打开 = 平板/车机横屏铺满到边；关闭 = 限宽居中</string>
+    <string name="lab_auto_play_title">启动自动播放</string>
+    <string name="lab_auto_play_subtitle">默认打开 = 进软件接着上次进度自动续播；关闭 = 恢复队列但暂停，手动点播放</string>
+    <string name="lab_endpoint_edit_cd">编辑音源地址：%1$s</string>
+    <string name="lab_endpoint_dialog_title">音源地址 · %1$s</string>
+    <string name="lab_endpoint_label">接口地址（http/https）</string>
+    <string name="lab_endpoint_hint">修改后下一次请求立即生效；「恢复默认」可清空自定义</string>
+    <string name="lab_endpoint_customized">已自定义（下面显示的是当前生效地址）</string>
+    <string name="lab_endpoint_invalid">地址必须以 http:// 或 https:// 开头</string>
+    <string name="lab_endpoint_save">保存</string>
+    <string name="lab_endpoint_cancel">取消</string>
+    <string name="lab_endpoint_reset">恢复默认</string>
+    <string name="lab_section_results">自检结果（%1$d 行）</string>
+    <string name="lab_switch_resolver_subtitle">%1$s · priority %2$d</string>
+    <string name="lab_reset">重置</string>
+
+    <string name="lab_row_header">%1$s · %2$s</string>
+    <string name="lab_verdict_full">全曲</string>
+    <string name="lab_verdict_trial">试听片段</string>
+    <string name="lab_verdict_failed">失败</string>
+    <string name="lab_verdict_unknown">未探测</string>
+    <string name="lab_error_code">错误码：%1$s</string>
+    <string name="lab_declare">声明 %1$ds</string>
+    <string name="lab_real">实测 %1$ds</string>
+    <string name="lab_real_unknown">实测 —</string>
+    <string name="lab_diff">差值 %1$ds</string>
+    <string name="lab_diff_unknown">差值 —</string>
+
+    <!-- 播放探针：用与 ExoPlayer 相同的 OkHttpDataSource 真实拉流，区分「链有效」与「能播」 -->
+    <string name="lab_play_ok">可播放</string>
+    <string name="lab_play_error">播放失败：%1$s</string>
+    <string name="lab_headline_play_fail">⚠ %1$d 首取链成功但真机拉流失败（详见日志「播放探针」段）</string>
+    <string name="lab_headline_ratio">(%1$d/%2$d 成功)</string>
+    <string name="lab_elapsed">耗时 %1$d ms</string>
+    <string name="lab_quality">码率 %1$s</string>
+    <string name="lab_value_unknown">—</string>
+
+    <string name="lab_hint_title">怎么看结果</string>
+    <string name="lab_hint_body">1. 实测 ≥ 声明 × 90% → 判「全曲」；明显更短 → 判「试听片段」。\n2. 顶部结论给每个平台一个判定标签（全曲 / 试听片段 / 失败），括号 (X/Y 成功) 表示本轮 Y 首里 X 首取链成功且播放探针通过；红底横幅表示本轮存在失败行。\n3. 行内看错误码定位：E_NO_SOURCE 多为上游版权/限频，可关掉对应策略开关或稍后再试。\n4. 「未探测」= 取链成功但读不到真实时长，看「播放探针」段的 err。\n5. 点右上角「复制日志」可把整张表粘给开发者排查。</string>
+
+    <!-- 自建歌单（Library） -->
+    <string name="library_title">我的歌单</string>
+    <string name="action_new_playlist">新建歌单</string>
+    <string name="action_rename">重命名</string>
+    <string name="action_delete">删除</string>
+    <string name="action_play_all">播放全部</string>
+    <string name="action_sort_by_name">按名称排序</string>
+    <string name="msg_sorted_by_name">已按名称排序</string>
+    <string name="action_add_songs">添加歌曲到本歌单</string>
+    <string name="msg_songs_added">已添加 %1$d 首歌曲</string>
+    <string name="msg_songs_all_dup">所选歌曲都已在歌单中</string>
+    <string name="dialog_title_new_playlist">新建歌单</string>
+    <string name="dialog_title_rename_playlist">重命名歌单</string>
+    <string name="dialog_title_delete_playlist">删除歌单</string>
+    <string name="dialog_message_delete_playlist">确定删除歌单《%1$s》？\n歌单内的歌曲不会删除，只是从歌单移除。</string>
+    <string name="hint_playlist_name">歌单名称</string>
+    <string name="action_create">创建</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_confirm">确定</string>
+    <string name="msg_playlist_name_empty">名称不能为空</string>
+    <string name="label_playlist_empty">还没有歌单</string>
+    <string name="label_playlist_empty_hint">点右上角 + 新建一个歌单，从榜单或本地添加歌曲</string>
+    <string name="label_playlist_detail_empty">这个歌单还是空的</string>
+    <string name="label_playlist_detail_empty_hint">回榜单页点歌行右侧 + 号加入，或在「我的歌单」用导入/挂载把本地音乐加进来</string>
+    <string name="dialog_title_add_to_playlist">加入歌单</string>
+    <string name="label_songs_summary">《%1$s》等 %2$d 首</string>
+    <string name="label_no_playlist_for_add">还没有歌单，先新建一个</string>
+    <string name="action_new_and_add">新建并加入</string>
+    <string name="msg_added_to_playlist">已加入《%1$s》</string>
+    <string name="msg_already_in_playlist">已在歌单《%1$s》中</string>
+    <string name="msg_batch_added">已加入 %1$d 首到《%2$s》</string>
+    <string name="msg_batch_added_partial">已加入 %1$d 首到《%3$s》，%2$d 首已在歌单中</string>
+    <string name="msg_batch_dup_refreshed">《%2$s》里已有全部 %1$d 首，已按本次顺序刷新</string>
+    <string name="cd_open_library">打开我的歌单</string>
+    <string name="cd_add_to_playlist">把《%1$s》加入歌单</string>
+    <string name="cd_remove_song">把《%1$s》移出歌单</string>
+    <string name="cd_new_playlist">新建歌单</string>
+
+    <!-- 本地音乐导入 / 文件夹挂载 -->
+    <string name="action_import_local">导入本地音乐</string>
+    <string name="action_mount_folder">挂载本地文件夹</string>
+    <string name="cd_import_local">从文件选择器导入本地音乐</string>
+    <string name="cd_mount_folder">挂载一个含音乐的本地文件夹（自动读入同名字幕）</string>
+    <string name="msg_no_music_in_folder">这个文件夹里没有找到可播放的音乐</string>
+    <string name="msg_scan_error">扫描失败：%1$s</string>
+    <string name="msg_import_empty">没有可导入的音乐文件</string>
+    <string name="msg_folder_permission_denied">无法长期保存该文件夹访问权限</string>
+    <string name="dialog_title_name_local_chart">命名本地歌单</string>
+    <string name="msg_local_chart_added">已创建「%1$s」，可在首页「本地音乐」查看</string>
+    <string name="label_origin_import">导入</string>
+    <string name="label_origin_mount">挂载</string>
+    <string name="cd_add_current_to_playlist">把当前歌曲加入歌单</string>
+    <string name="cd_toggle_lyric">桌面歌词开关</string>
+    <string name="msg_desktop_lyric_permission">需要在系统设置中授予「显示在其他应用上层」权限才能使用桌面歌词</string>
+
+    <!-- 音源管理（用户自行添加 JS 插件源） -->
+    <string name="sources_title">音源管理</string>
+    <string name="sources_add">解析并添加</string>
+    <string name="sources_add_hint">粘贴 URL 或多行清单（每行：名称 + 空格/Tab + URL）</string>
+    <string name="sources_tip">支持单条 URL、整段多行清单；注册表（plugins.json）添加后可点「展开」安装里面的插件</string>
+    <string name="sources_section_list">已添加音源（%1$d）</string>
+    <string name="sources_empty">还没有添加音源</string>
+    <string name="sources_empty_hint">把清单里的任意行粘到上面输入框，点「解析并添加」。加进来先做抓取校验，能看清每个源的大小、契约类型和是否可达；脚本执行能力随后接入。</string>
+    <string name="sources_type_single">单源</string>
+    <string name="sources_type_registry">注册表</string>
+    <string name="sources_runtime_lx">LX 契约</string>
+    <string name="sources_runtime_musicfree">MusicFree 契约</string>
+    <string name="sources_runtime_unknown">契约未知</string>
+    <string name="sources_size">%1$d KB</string>
+    <string name="sources_children">%1$d 个插件</string>
+    <string name="action_expand">展开</string>
+    <string name="action_sources">音源</string>
+    <string name="cd_open_sources">打开音源管理</string>
+    <string name="cd_add_module">添加音源模块</string>
+    <string name="module_proxy_hint">该音源是取链代理（仅提供播放直链，无独立榜单 / 搜索）。已启用后，播放网易云 / 酷狗歌曲、原生取链失败时，会自动作为降级策略取链（策略 lx.wy.* / lx.kg.* 可在「音源自检台」单独开关）。</string>
+    <string name="module_inactive_hint">该音源是脚本插件（LX / MusicFree 契约）。JS 引擎尚未接入、脚本本身未被执行，当前不提供搜索 / 取链能力，仅作收录展示；播放网易云 / 酷狗失败时的自动降级取链由内置公共代理提供，与本模块开关无关。</string>
+    <string name="module_no_browse">该音源暂无可浏览的歌曲列表</string>
+    <string name="action_open_sources">去音源管理</string>
+
+    <!-- 搜索页（网易云云搜索） -->
+    <string name="search_title">搜索音乐</string>
+    <string name="search_hint">歌名 / 歌手</string>
+    <string name="search_empty">搜点什么吧，比如「晴天」</string>
+    <string name="search_empty_hint">搜索结果复用网易云播放链路，付费墙歌曲会自动降级取链或跳过</string>
+    <string name="search_no_result">没有找到相关歌曲</string>
+    <string name="cd_open_search">搜索音乐</string>
+    <string name="cd_run_search">搜索</string>
+
+    <!-- 挂载空扫诊断（无 adb 环境时把扫描中间量弹到对话框，方便截图/复制给开发者） -->
+    <string name="diag_title_scan">挂载诊断（点复制把全文发给开发者）</string>
+    <string name="diag_copy">复制</string>
+    <string name="diag_copied">诊断信息已复制</string>
+
+    <!-- 无障碍描述 -->
+    <string name="cd_app_icon">LeLeMusic 应用图标</string>
+    <string name="cd_album_cover">专辑封面</string>
+    <string name="cd_settings">打开设置</string>
+    <string name="cd_play_pause">播放或暂停</string>
+    <string name="cd_skip_next">下一首</string>
+    <string name="cd_skip_previous">上一首</string>
+    <string name="cd_refresh">刷新当前榜单</string>
+    <string name="cd_back">返回上一页</string>
+    <string name="cd_close_player">收起全屏播放器</string>
+    <string name="cd_open_player">打开全屏播放器</string>
+    <string name="cd_playback_mode">切换播放模式</string>
+    <string name="cd_progress">播放进度</string>
+    <string name="cd_song_row">播放 %1$s</string>
+    <string name="cd_platform_tab">切换到 %1$s 榜单</string>
+    <string name="cd_run_check">开始音源自检</string>
+    <string name="cd_toggle">开关 %1$s</string>
+    <string name="cd_copy_log">复制自检日志</string>
+
+</resources>

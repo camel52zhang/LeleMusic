@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 自适应图标背景色（被 mipmap-anydpi-v26/ic_launcher.xml 以 @color/ic_launcher_background 引用） -->
+    <color name="ic_launcher_background">#FF1DB954</color>
+</resources>

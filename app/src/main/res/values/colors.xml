@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 注意：ic_launcher_background 定义在独立的 res/values/ic_launcher_background.xml 中，
+         此处不再重复定义，避免 AAPT "duplicate value for resource" 报错 -->
+    <color name="launcher_window_bg">#FFFFFFFF</color>
+    <color name="launcher_foreground_tint">#FFFFFFFF</color>
+    <color name="notification_icon_tint">#FFFFFFFF</color>
+</resources>

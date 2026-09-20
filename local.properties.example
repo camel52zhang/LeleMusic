@@ -1,0 +1,21 @@
+# ---------------------------------------------------------------------------
+# LeLeMusic - local.properties 示例
+#
+# 用法：把本文件复制为同目录下的 local.properties，并把 sdk.dir 改成你本机的
+#       Android SDK 绝对路径。
+#
+# 注意（Windows）：
+#   1) 路径分隔符要写成 "\\"（双反斜杠）或 "/"（正斜杠），单个 "\" 会被当作转义字符。
+#   2) 示例：
+#        sdk.dir=C\:\\Users\\YourName\\AppData\\Local\\Android\\Sdk
+#        sdk.dir=C:/Users/YourName/AppData/Local/Android/Sdk
+#
+# 注意（macOS / Linux）：
+#        sdk.dir=/Users/YourName/Library/Android/sdk
+#        sdk.dir=/home/yourname/Android/Sdk
+#
+# local.properties 已被 .gitignore 忽略，不会被提交。
+# ---------------------------------------------------------------------------
+
+## 默认示例（Windows），请按需修改
+sdk.dir=C\:\\Users\\YourName\\AppData\\Local\\Android\\Sdk

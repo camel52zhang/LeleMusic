@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色主题：Compose 内部由 LeLeMusicTheme 的 Material3 colorScheme 接管。
+         这里刻意不设 windowBackground——沿用 android:Theme.Material.NoActionBar 的深色默认值，
+         避免冷启动时闪一下白屏（本项目没有 values-night/colors.xml 覆盖窗口底色）。 -->
+    <style name="Theme.LeLeMusic" parent="android:Theme.Material.NoActionBar" />
+</resources>

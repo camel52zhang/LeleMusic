@@ -124,7 +124,7 @@ struct KugouService {
                 title: item.songName ?? "",
                 artist: item.singerName ?? "",
                 durationMs: (item.durationSec ?? 0) * 1000,
-                coverUrl: buildChartCoverUrl(item.albumSizableCover),
+                coverUrl: Self.buildChartCoverUrl(item.albumSizableCover),
                 rank: offset + 1
             )
         }

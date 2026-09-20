@@ -20,7 +20,12 @@ jobs:
 
       - name: Generate Xcode project
         working-directory: ios
-        run: xcodegen generate
+        run: |
+          xcodegen generate
+          echo "--- verify project ---"
+          pwd && ls -la
+          test -d LeleMusic.xcodeproj && echo "xcodeproj OK" || { echo "xcodeproj MISSING"; find . -maxdepth 3 -name "*.xcodeproj"; exit 1; }
+          xcodebuild -project LeleMusic.xcodeproj -list
 
       - name: Build (unsigned, generic iOS device)
         working-directory: ios

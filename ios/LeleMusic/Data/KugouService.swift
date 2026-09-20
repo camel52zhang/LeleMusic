@@ -35,7 +35,7 @@ struct KugouService {
         var songs: [Song] = []
         for page in 1...pagesNeeded {
             if songs.count >= limit { break }
-            var comps = URLComponents(string: endpoint(Self.rankUrl))!
+            var comps = URLComponents(string: Self.rankUrl)!
             comps.queryItems = [
                 URLQueryItem(name: "rankid", value: String(rankId)),
                 URLQueryItem(name: "page", value: String(page)),
@@ -207,7 +207,7 @@ struct KugouService {
     }
 
     private func fetchLyricByHash(keyword: String, hash: String, durationMs: Int) async throws -> LyricResult {
-        var comps = URLComponents(string: endpoint(Self.lyricSearchUrl))!
+        var comps = URLComponents(string: Self.lyricSearchUrl)!
         comps.queryItems = [
             URLQueryItem(name: "ver", value: "1"),
             URLQueryItem(name: "man", value: "yes"),

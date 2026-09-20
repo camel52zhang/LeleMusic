@@ -74,7 +74,7 @@ final class LyricLoader: ObservableObject {
         case .netease:
             return try? await netease.lyric(song: song) ?? .noLyric
         case .kugou:
-            return try? await kugou.lyric(song: song) ?? .noLyric
+            return (try? await kugou.lyric(song: song)) ?? .noLyric
         case .local:
             return .noLyric
         }

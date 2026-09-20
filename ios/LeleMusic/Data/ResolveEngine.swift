@@ -110,10 +110,10 @@ final class ResolveEngine {
         switch song.platform {
         case .netease:
             chain = [
-                (netease.eapiStrategyId, 9, { try await self.netease.resolveEapi(song: $0) }),
-                (netease.urlStrategyId, 10, { try await self.netease.resolveSongUrl(song: $0) }),
+                (NeteaseService.eapiStrategyId, 9, { try await self.netease.resolveEapi(song: $0) }),
+                (NeteaseService.urlStrategyId, 10, { try await self.netease.resolveSongUrl(song: $0) }),
                 (LxProxyResolver.builtin(platform: .netease).strategyId, 90, { try await LxProxyResolver.builtin(platform: .netease).resolve(song: $0) }),
-                (netease.gdStrategyId, 91, { try await self.netease.resolveGd(song: $0) }),
+                (NeteaseService.gdStrategyId, 91, { try await self.netease.resolveGd(song: $0) }),
             ]
         case .kugou:
             let lx = LxProxyResolver.builtin(platform: .kugou)

@@ -11,7 +11,7 @@ settings:
     CURRENT_PROJECT_VERSION: "260920"
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: ""
-    SWIFT_VERSION: "5.9"
+    SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
 
 targets:

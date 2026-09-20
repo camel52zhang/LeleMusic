@@ -5,8 +5,6 @@
 - Android：Kotlin 1.9.22 + Jetpack Compose + Media3 (ExoPlayer)，minSdk 26 / targetSdk 34，包名 `com.lelemusic`
 - iOS：SwiftUI + AVPlayer（零第三方依赖），XcodeGen 管理工程，GitHub Actions 出 unsigned IPA
 
-> QQ 音乐已于 2026-09 下线（接口被服务端拦截，无法稳定取链），不再作为音源支持。
-
 ---
 
 ## 一、功能特性

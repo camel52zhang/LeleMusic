@@ -1,20 +1,37 @@
 # LeLeMusic
 
-聚合 **QQ音乐 / 网易云音乐 / 酷狗音乐** 三平台排行榜的 Android 音乐播放器。
-三平台 Top50 平铺在首页，点歌即播；在线全曲取不到时自动降级为试听片段，并把「为什么只能试听」摆在明面上。
+聚合 **网易云音乐 / 酷狗音乐 / 哔哩哔哩** 三平台榜单 + **本地歌单** 的音乐播放器，Android + iOS 双端。
 
-- 包名：`com.lelemusic`
-- 技术栈：Kotlin 1.9.22 + Jetpack Compose + Media3 (ExoPlayer) + OkHttp/Retrofit + 手工 DI
-- 最低系统：Android 8.0（API 26），目标 Android 14（API 34）
+- Android：Kotlin 1.9.22 + Jetpack Compose + Media3 (ExoPlayer)，minSdk 26 / targetSdk 34，包名 `com.lelemusic`
+- iOS：SwiftUI + AVPlayer（零第三方依赖），XcodeGen 管理工程，GitHub Actions 出 unsigned IPA
+
+> QQ 音乐已于 2026-09 下线（接口被服务端拦截，无法稳定取链），不再作为音源支持。
 
 ---
 
-## 一、编译环境要求
+## 一、功能特性
+
+| 模块 | 说明 |
+|---|---|
+| 榜单 | 网易云（热歌榜/新歌榜）、酷狗（TOP500/飙升榜）、B站（热门视频），Top50 平铺首页，点歌即播 |
+| 搜索 | 各平台歌曲搜索（网易云 cloudsearch / 酷狗 song_search_v2） |
+| 取链 | 降级责任链：平台官方接口 → LX 代理源 → 兜底策略；全曲取不到时自动降级试听片段并明示 |
+| 歌单 | 我的歌单：本地导入（SAF 多选）/ 网盘挂载，可建/改名/删除；歌单详情页可继续加歌 |
+| 本地播放 | mp3 / flac / m4a / wav / aac / ogg / opus 直接播放 |
+| 歌词 | 内嵌滚动歌词 + 桌面悬浮歌词；无词时点击「暂无歌词」联网自动匹配（网易云→酷狗）；点击歌词行跳播 |
+| 播放 | 锁屏控制、后台播放、倍速、列表循环/单曲循环/随机、失败卡片（重试 + 跳官方收听） |
+| 平板/车机 | ≥600dp 默认铺满到边（可关）；Expanded 横屏播放页双栏（左封面控制/右歌词）；手机锁定竖屏 |
+| 设置 | 启动自动播放开关、运行期策略开关、**音源地址在线编辑**（查看/修改/恢复默认） |
+| 自检台 | 每策略实测取链 + 真实音频时长探测，TSV 日志一键复制 |
+
+---
+
+## 二、编译环境要求（Android）
 
 | 组件 | 版本 | 说明 |
 |---|---|---|
 | JDK | **17** | `app/build.gradle.kts` 里 `sourceCompatibility = VERSION_17`，低版本会直接编译失败 |
-| Android SDK | **34**（compileSdk / targetSdk） | 需在 SDK Manager 里装好 `Android SDK Platform 34` 与 `Android SDK Build-Tools` |
+| Android SDK | **34**（compileSdk / targetSdk） | SDK Manager 里装好 `Android SDK Platform 34` 与 Build-Tools |
 | Gradle | 由 wrapper 指定 | 直接跑 `./gradlew`，不要用自己的全局 Gradle |
 | Kotlin | 1.9.22 | 已在 `gradle/libs.versions.toml` 锁定 |
 | Compose Compiler | 1.5.8 | **必须与 Kotlin 1.9.22 精确配对**，改一个字符就整轮返工 |
@@ -35,181 +52,66 @@ sdk.dir=C:/Users/YourName/AppData/Local/Android/Sdk
 sdk.dir=C:\Users\YourName\AppData\Local\Android\Sdk
 ```
 
-macOS / Linux：
-
-```properties
-sdk.dir=/Users/YourName/Library/Android/sdk
-sdk.dir=/home/yourname/Android/Sdk
-```
-
-`local.properties` 已被 `.gitignore` 忽略，不会被提交。
-
 ### 编译与安装
 
 ```bash
-./gradlew :app:assembleDebug          # 出 APK
-./gradlew :app:installDebug           # 装到已连接的设备 / 模拟器
+./gradlew assembleDebug          # 出 APK（LeleMusic-vYY.MM.DD.apk）
+./gradlew installDebug           # 装到已连接的设备
 ```
 
-Windows 用 `gradlew.bat`。
+Windows 用 `gradlew.bat`。APK 文件名由 `versionName`（YY.MM.DD 格式）自动生成。
 
 ---
 
-## 二、真机验证清单（拿到项目后按这个顺序走）
+## 三、iOS 版
 
-### 第 0 步：装好 App，授予通知权限
+`ios/` 目录是独立的 SwiftUI 工程（XcodeGen 定义，无 `.xcodeproj` 入库）。与 Android 端能力对齐：榜单/搜索/歌单/播放/歌词，`playlists.json` 与 Android **同 schema，两端文件可互拷**。
 
-首次启动会弹一次「通知」权限请求。
-**必须允许**——不给这个权限，播放通知一条都不会出现，「通知栏可播放/暂停/切歌」这条就废了。
-
-### 第 1 步：确认首页能出歌
-
-装好打开，默认落在 **QQ音乐 · 热歌榜**。
-
-- 顶部是平台 Tab（QQ音乐 / 网易云音乐 / 酷狗音乐），下面是榜单 Tab（热歌榜 / 新歌榜 等）。
-- 列表应显示约 50 首歌，每行：排名 + 封面 + 歌名 + 「歌手 · 专辑」+ 时长。
-- 平台上方的「更新于 …」行右侧有刷新按钮，可强制重新拉榜。
-
-**如果某个平台的 Tab 名字旁边挂了红色「维护中」角标**，说明启动时探活发现该平台榜单接口不可用。
-置灰只是提示，**仍然可以点**——点进去会真的再试一次。
-
-**如果整页是骨架屏转圈不出内容**：先确认手机能上网，再切到别的平台看看是不是单平台挂掉。
-
-### 第 2 步：点一首歌，确认能播
-
-随便点一行 → 进入全屏播放器并开始播放。
-
-- 顶部右侧有「来源: QQ音乐」胶囊；
-- 中间是大封面，下面是歌名、歌手 · 专辑；
-- 底部是进度条、上一首 / 播放暂停 / 下一首、播放模式（列表循环 / 单曲循环 / 随机播放）。
-
-**返回榜单页时播放不会中断**，底部会出现迷你播放条（封面 + 歌名 + 播放暂停 + 下一首）。
-
-**如果歌名下面出现橙色「试听片段」胶囊**，说明这首歌只拿到了试听片段，这是**降级成功**而不是 bug。
-
-**如果中间出现红色错误卡片**（「该歌曲当前无法播放」），卡片上有两个出口：
-
-- 「重试」：清掉失败记录，重新走一次取链；
-- 「跳转到 XX音乐 收听」：用浏览器打开该平台的官方页面。
-
-### 第 3 步：进音源自检台（**最关键的一步**）
-
-**这是本项目存在的意义**——QQ 全曲到底通不通，只有真机跑一次自检台才能定论。
-
-**两个入口，任选其一：**
-
-1. 首页**右上角齿轮图标** → 直接进入；
-2. 首页**顶部标题「LeLeMusic」连点 7 次**（2 秒内点满）→ 彩蛋入口。
-
-进入后点 **「开始自检」**。它会：
-
-1. 每个平台从默认榜单选 3 首歌做样本；
-2. 对每首歌跑该平台的**全部**取链策略（忽略优先级与开关，一个都不落下）；
-3. 对每条拿到的直链用 `MediaMetadataRetriever` 读**真实音频时长**，与榜单声明时长比对；
-4. 逐行输出：平台 / 策略 / 结果 / 错误码 / 声明时长 / 实测时长 / **差值** / 判定 / 耗时 / URL。
-
-跑完大概需要十几秒到一分钟（每条直链都要真下载一段音频来测时长），期间有进度条。
-
-跑完后点右上角 **「复制日志」**，可以把整张表（TSV 格式，可直接粘进 Excel）复制到剪贴板。
-
-### 第 4 步：怎么看结果——QQ 全曲通没通
-
-**先看最上面的结论横幅**，它会直接写：
-
-- `QQ 全曲：已打通` —— 横幅是**主色（绿）**底；
-- `QQ 全曲：未打通（当前只能播试听片段）` —— 横幅是**红色**底。
-
-下面的结果表每行右侧有一个判定胶囊：
-
-| 判定 | 含义 | 判定依据 |
-|---|---|---|
-| **全曲**（绿） | 拿到了完整歌曲 | 实测时长 ≥ 声明时长 × 90% |
-| **试听片段**（橙） | 只有片段 | 实测时长明显短于声明时长 |
-| **失败**（红） | 取链就失败了 | 看该行的「错误码」 |
-| **未探测**（灰） | 取链成功但读不到真实时长 | 开 `qq.probe` 重跑 |
-
-**判定的具体读法**（假设某首歌榜单声明 320 秒）：
-
-```
-声明 320s  ·  实测 320s  ·  差值 0s     → 全曲 ✅
-声明 320s  ·  实测 60s   ·  差值 -260s  → 试听片段 ⚠️
-声明 320s  ·  实测 —     ·  差值 —      → 未探测
-错误码：E_NO_SOURCE retcode=104009       → qq.full 被服务端拒绝 ❌
-```
-
-#### 情况 A：QQ 全曲已打通 🎉
-
-说明 `qq.full`（CgiGetVkey）或 `qq.trial`（C100）至少有一条拿到了真全曲。
-
-- 如果是 `qq.trial` 判的全曲，说明 **C100 地址本身就是全曲**。此时可以关掉 `qq.full`（省一次请求）和 `qq.probe`（省一次音频探测），QQ 平台直接闭环。
-- 关法见第 5 步。
-
-#### 情况 B：QQ 全曲未打通
-
-按顺序做：
-
-1. **看 `qq.full` 那几行的错误码。**
-   - `retcode=104009`（通常在 `E_NO_SOURCE retcode=104009` 里）——CgiGetVkey 被服务端拒绝。
-     这是本项目最大的未决问题：三篇独立教程都指向「缺 `Referer: https://y.qq.com/`」，
-     代码里已经在 `HttpStack` 按 host 统一注入了 Referer，但**需要真机数据才能证伪**。
-   - `E_TIMEOUT` / `E_NET` —— 网络问题，换个网络重跑。
-2. **看 `qq.trial` 那几行的实测时长。**
-   - 实测 ≈ 声明 → C100 就是全曲，只是 UI 上还标着「试听片段」（因为服务端没明说）。
-     → 把 `qq.probe` 保持开启，UI 就会正确标成全曲。
-   - 实测明显短（如 60s）→ C100 确实只有片段，QQ 平台在 MVP 阶段就只能听片段。
-3. **按结论切开关**（第 5 步），切完**不用重启**，直接回榜单页再点一首歌验证。
-4. 想要更保险：切完开关后**再跑一次自检**，确认新的结论横幅符合预期。
-
-### 第 5 步：切开关降级（改完立即生效）
-
-自检台中部的「运行期开关」区，改完**下一次取链立即生效，不需要重启 App**。
-
-| 开关 | 默认 | 作用 | 什么时候动它 |
-|---|---|---|---|
-| `qq.full` | 开 | CgiGetVkey 取全曲 | 一直报 `retcode=104009` → **关掉**，让 QQ 直接走 `qq.trial` |
-| `qq.probe` | 开 | 探测 C100 直链真实时长 | 已确认 C100 是全曲 → **关掉**，省一次音频往返 |
-| `qq.full` / `qq.trial` / `netease.320` / `kugou.playinfo` | 开 | 单个取链策略的启用覆盖 | 某策略确定无用 → 关掉 |
-
-覆盖过的策略右边会出现「重置」按钮，点了就回落到该策略的内置默认值。
-
-> ⚠️ 自检台**故意忽略这些开关**：它要把每个策略都跑一遍，否则你永远看不到「关掉它之前它到底是什么错」。
-
-### 第 6 步：三条异常路径（可选但建议跑一遍）
-
-| 路径 | 操作 | 期望 |
-|---|---|---|
-| 断网 | 关掉 Wi-Fi 和流量 → 切榜单 / 点歌 | 显示错误卡片 + 重试按钮，**不崩溃** |
-| 单平台挂掉 | 只连一个能通的网络，或等某个平台被风控 | 该平台 Tab 挂「维护中」角标，其他两平台照常 |
-| 单曲不可播 | 找一首付费/版权受限的歌 | 出错误卡片 + 「跳转到 XX音乐 收听」，**不崩溃** |
+- **本机无 Mac 时**：push 到 GitHub 后 Actions（macos runner）自动出 **unsigned IPA** Artifact；
+- **安装**：Windows 上用 [Sideloadly](https://sideloadly.io) + Apple ID 签名侧载（免费 Apple ID 7 天重签一次），步骤见 `ios/README-INSTALL.md`；
+- 编译要求（有 Mac 时）：Xcode 16.2+（xcodegen 2.46 生成的项目格式 77 需要）、`brew install xcodegen`。
 
 ---
 
-## 三、已知限制
+## 四、GitHub Releases 自动发布
 
-1. **QQ 全曲待真机验证。**
-   `CgiGetVkey`（`qq.full`）在调研阶段实测返回 `retcode=104009 / msg="...invalidq;"` 且 `purl`/`vkey`/`sip` 全空。
-   代码已按「带 Referer + 移动端 UA + 持久化 guid」实现，但**是否打通必须以真机自检台的实测时长为准**。
-   降级路径（`qq.trial` C100 地址）已验证可用，最差情况 QQ 平台只能播试听片段。
+`.github/workflows/release.yml`（对齐 local-sharing 模式）：
 
-2. **酷狗「网络红歌榜」的 `rankid` 未确认。**
-   需求里要的「网络红歌榜」没找到确定的 rankid，当前用 **飙升榜 `6666`** 占位（二手来源，未实测）。
-   真机跑一次如果是空榜，直接在 `data/source/ChartCatalog.kt` 里把该条 `enabled = false`，或换成同平台其他榜单。
+| 触发 | 行为 |
+|---|---|
+| push 到 main | Android APK + iOS IPA → Actions Artifacts（日常测试） |
+| **push `v*` tag** | 双端构建 → 自动发布到 GitHub Releases（正式发布） |
+| 手动 dispatch | Actions 页 Run workflow 随时触发 |
 
-3. **网易「新歌榜」`3779629` 为二手来源，未实测**（同 `ChartCatalog.kt`，处理方式同上）。
+发版流程：改 `app/build.gradle.kts` 的 `versionName/versionCode`（YY.MM.DD）→ `git tag vYY.MM.DD` → `git push origin main --tags`。
 
-4. **无本地缓存。**
-   榜单只有进程内内存缓存（退出 App 即失），歌曲、收藏、播放历史都不落盘。
-   这是刻意的：网易直链 20 分钟过期，落盘只会带来一堆过期数据。
-
-5. **MVP 不做独立榜单详情页。** Top50 直接平铺首页，切榜靠横向 Tab（PRD 5.2 已确认的取舍）。
-
-6. **首页只取 Top50**，不是完整 Top100。
-
-7. 旋转已通过 `android:screenOrientation="portrait"` 锁竖屏，横屏布局非 MVP 需求。
+最新包：[Releases](https://github.com/camel52zhang/LeleMusic/releases)。
 
 ---
 
-## 四、合规声明
+## 五、真机验证清单
+
+1. **装好 App，授予通知权限**——不给权限，播放通知与锁屏控制不可用；
+2. **首页能出歌**：平台 Tab（网易云/酷狗/B站/我的歌单）+ 榜单 Tab，每行排名 + 封面 + 歌名 + 时长；平台不可用时 Tab 挂「维护中」角标（仍可点，进去会重试）；
+3. **点歌能播**：全屏播放器，封面/歌名/进度/控制齐全；歌名下出现橙色「试听片段」是**降级成功**不是 bug；红色错误卡片有「重试」和「跳转到官方收听」两个出口；
+4. **自检台**（首页右上角齿轮，或标题「LeLeMusic」2 秒内连点 7 次）：点「开始自检」对每个策略实测取链并用 `MediaMetadataRetriever` 读真实时长比对，逐行输出判定（全曲/试听片段/失败），右上角可复制 TSV 日志；
+5. **运行期开关与音源地址**（自检台内）：策略开关下一次取链立即生效；每行铅笔按钮可查看/修改/恢复该策略的音源地址（App 重启后仍生效）；
+6. **歌词**：播放页左滑进歌词页，滚动高亮 + 点击行跳播；本地无词歌曲点「暂无歌词」区域联网匹配；
+7. **平板**：≥600dp 设备默认铺满到边，Expanded 横屏双栏布局。
+
+---
+
+## 六、已知限制
+
+1. **网易云部分歌曲被拦截**（版权风控），依赖 LX 代理源与 GD 兜底策略，兜不住的歌曲出错误卡片；
+2. **酷狗「飙升榜」rankid `6666` 为二手来源未实测**，空榜时在 `data/kugou/KugouModule.kt` 里把该条 `enabled = false` 或换其他榜单；
+3. **网易「新歌榜」`3779629` 同为二手来源**（同上）；
+4. **榜单只有进程内内存缓存**（退出即失）——网易直链 20 分钟过期，刻意不落盘；歌单/收藏走 `LibraryRepository`（playlists.json）持久化；
+5. **首页只取 Top50**，不是完整榜单。
+
+---
+
+## 七、合规声明
 
 > LeLeMusic 是一款第三方音乐榜单聚合工具。所有榜单数据与音频资源均来自各平台公开页面，版权归原平台及权利人所有。本 App 不提供音频文件的下载、转存或分发服务，所有播放均实时指向原始来源。如您是相关权利人并认为本 App 侵犯了您的权益，请通过 [联系方式] 与我们联系，我们将在 24 小时内处理。
 >
@@ -217,44 +119,46 @@ Windows 用 `gradlew.bat`。
 
 ---
 
-## 五、项目结构
+## 八、项目结构
 
 ```
 app/src/main/kotlin/com/lelemusic/
 ├── LeLeMusicApp.kt              Application：初始化 AppGraph + 后台启动探活
 ├── core/
 │   ├── common/                  常量 / 错误码 / 格式化 / 调度器
-│   ├── data/AppSettings.kt      SharedPreferences（运行期开关）
+│   ├── data/AppSettings.kt      SharedPreferences（开关 / 端点覆盖 / 播放偏好）
 │   ├── net/HttpStack.kt         OkHttp + Referer 注入
-│   └── di/AppGraph.kt           手工 DI 容器
-├── model/                       Song / Platform / ChartDef / PlaybackMode / Playable
+│   └── di/AppGraph.kt           手工 DI 容器（平台模块注册表）
+├── model/                       Song / Platform / ChartDef / PlaybackMode / Playable / Lyric
 ├── data/
-│   ├── source/                  RankSource / PlayUrlResolver / ChartCatalog
+│   ├── source/                  RankSource / PlayUrlResolver / ResolverEndpoints（音源地址注册表）
 │   ├── remote/                  Retrofit 接口 + DTO
-│   ├── qq/ netease/ kugou/      三平台数据源与取链策略
-│   └── probe/UrlDurationProbe   直链真实时长探测（MediaMetadataRetriever）
-├── repo/
-│   ├── ChartRepository.kt       榜单聚合 + 故障隔离 + 内存缓存
-│   ├── PlayUrlResolveUseCase.kt 取链降级责任链
-│   └── SourceHealthRepository.kt 启动探活
+│   ├── netease/ kugou/ bilibili/ 各平台数据源与取链策略
+│   ├── local/                   LocalScanner（SAF 导入）/ LocalRankSource（歌单挂载为榜单）
+│   ├── plugin/                  LX-Music 插件代理源（api.txt，globalThis.lx 契约）
+│   ├── probe/                   直链真实时长探测（MediaMetadataRetriever）
+│   └── library/                 LibraryRepository（playlists.json 歌单持久化）
+├── repo/                        榜单聚合 / 取链降级责任链 / 启动探活
 ├── player/                      PlaybackService / PlaybackController / 内存表
 └── ui/
-    ├── RootNav.kt               NavHost（chart / lab / player）+ 迷你播放条
-    ├── chart/ player/ lab/      三个页面
-    └── common/                  SongRow / 骨架屏 / 错误态 / 空态 / 自绘图标
+    ├── RootNav.kt               NavHost + 迷你播放条
+    ├── chart/ library/ player/ lab/  榜单 / 我的歌单 / 播放（含歌词）/ 自检台
+    └── common/                  SongRow / 骨架屏 / 错误态 / 自绘图标 PlayerGlyphs.kt
+
+ios/                             SwiftUI 工程（XcodeGen，project.yml）
+.github/workflows/release.yml    Build & Release（Artifacts on push，Releases on v* tag）
+docs/                            PRD / 架构文档 / 接口调研
 ```
 
 音频直链**永不落盘**：`MediaItem` 里的 URI 是占位地址 `lelemusic://<uid>`，
 真实 URL 由 `ResolveDataSpecResolver` 在每次读流时实时解析——网易直链 20 分钟过期，预取后长期持有必然失效。
 
-图标说明：`material3` 只传递依赖 `material-icons-core`（约 50 个图标），
-`Pause` / `SkipNext` / `Repeat` / `Shuffle` 等都在未声明的 `material-icons-extended` 里，
-因此播放器这几个图标全部用 Canvas 自绘（见 `ui/common/PlayerGlyphs.kt`），零额外依赖。
-
 ---
 
-## 六、文档
+## 九、文档
 
 - `docs/PRD.md` —— 产品需求
 - `docs/ARCHITECTURE.md` —— 系统设计（含有序任务列表 T01~T05）
-- `docs/api-feasibility.md` —— 三平台接口可行性调研
+- `docs/api-feasibility.md` —— 平台接口可行性调研
+- `api.txt` —— LX-Music 插件 API 契约
+- `ios/README-INSTALL.md` —— iOS 侧载安装说明
